@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Simple blackjack game written in JavaScript.">
+    <meta name="author" content="Alex Hall">
+
+    <title>Blackjack!</title>
+	<link href="css/cards.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
+	<link href="https://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+	<link href='http://fonts.googleapis.com/css?family=Average+Sans|Finger+Paint|Source+Code+Pro|Press+Start+2P' rel='stylesheet' type='text/css'>
+  </head>
+
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="blackjack.html">Blackjack Game - version 1.0 beta</a>
+	          <ul class="nav navbar-nav"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+	    <div id="title" align="center"><h3>Let's play Blackjack!</h3></div>
+		<div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+				<div id="rules">
+					<h4>Rules:</h4>
+					<div>
+						<ul>
+							<li>Score higher than the dealer while getting as close to 21 as you can without going over.</li>
+							<li>Cards are counted as the value of the card number, face cards all count as 10, Aces can count as 1 or 11.</li>
+							<li>Click "Deal Hand" to start, then click "Hit" to be dealt a new card and "Stand" to stay where you are. The dealer will then play his hand.</li>
+							<li><a href="http://www.blackjackinfo.com/blackjack-rules.php" target="new">Detailed Rules</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br />
+		
+		<div class="blackjackUI">				
+			<div class="row">
+				<div class="col-md-12" align="center">
+					<input type='button' value="Deal Hand" class='btn btn-success btn-lg' id="dealNewHand">
+					<input type='button' value="Hit" class='btn btn-danger btn-lg' id="hit">
+					<input type='button' value="Stand" class='btn btn-primary btn-lg' id="stand">
+					<input type='button' value="Reset Hand" class='btn btn-default btn-lg' id="reset">
+				</div>
+			</div>
+
+			<div class="row" id="winLose">
+				<div class="col-md-12"><p><br /></p></div>
+				<div class="col-md-6" id="wPlayer"></div><div class="col-md-6" id="lDealer"></div>
+				<div class="col-md-6" id="lPlayer"></div><div class="col-md-6" id="wDealer"></div>
+				<div class="col-md-6" id="pTied"></div><div class="col-md-6" id="dTied"></div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6"><div id="displayPlayerScore"></div></div>
+				<div class="col-md-6"><div id="displayDealerScore"></div></div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6"><div class="playerHand"></div></div>
+				<div class="col-md-6"><div class="dealerHand"></div></div>
+			</div>
+		</div>
+
+    </div><!-- /.container -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="js/blackjack.js"></script>
+  </body>
+</html>

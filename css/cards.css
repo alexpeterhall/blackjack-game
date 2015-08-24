@@ -1,0 +1,195 @@
+[class^="card-"],
+[class*=" card-"] {
+  display: inline-block;
+  width: 72px;
+  height: 98px;
+  margin-top: 1px;
+  *margin-right: .3em;
+  vertical-align: text-top;
+  background-image: url("../img/playingCards.png");
+  background-repeat: no-repeat;
+}
+img {
+	position: absolute;
+	padding: 4px 0px 0px 1px;
+}
+#winLose {
+	font-size: 1.5em;
+	font-family: 'Press Start 2P', cursive;
+	text-align: center;
+}
+#wPlayer {
+	color: #40FF00;
+}
+#lPlayer {
+	color: #FF0000;
+}
+#wDealer {
+	color: #40FF00;
+}
+#lDealer {
+	color: #FF0000;
+}
+#pTied {
+	color: #FE9A2E;
+}
+#dTied {
+	color: #FE9A2E;
+}
+
+.card-aceClubs {
+  background-position: 0      0;
+}
+.card-twoClubs {
+  background-position: -73px 0;
+}
+.card-threeClubs {
+  background-position: -146px 0;
+}
+.card-fourClubs {
+  background-position: -219px 0;
+}
+.card-fiveClubs {
+  background-position: -292px 0;
+}
+.card-sixClubs {
+  background-position: -365px 0;
+}
+.card-sevenClubs {
+  background-position: -438px 0;
+}
+.card-eightClubs {
+  background-position: -511px 0;
+}
+.card-nineClubs {
+  background-position: -584px 0;
+}
+.card-tenClubs {
+  background-position: -657px 0;
+}
+.card-jackClubs {
+  background-position: -730px 0;
+}
+.card-queenClubs {
+  background-position: -803px 0;
+}
+.card-kingClubs {
+  background-position: -876px 0;
+}
+.card-aceSpades {
+  background-position: 0      -98px;
+}
+.card-twoSpades {
+  background-position: -73px -98px;
+}
+.card-threeSpades {
+  background-position: -146px -98px;
+}
+.card-fourSpades {
+  background-position: -219px -98px;
+}
+.card-fiveSpades {
+  background-position: -292px -98px;
+}
+.card-sixSpades {
+  background-position: -365px -98px;
+}
+.card-sevenSpades{
+  background-position: -438px -98px;
+}
+.card-eightSpades {
+  background-position: -511px -98px;
+}
+.card-nineSpades {
+  background-position: -584px -98px;
+}
+.card-tenSpades {
+  background-position: -657px -98px;
+}
+.card-jackSpades {
+  background-position: -730px -98px;
+}
+.card-queenSpades {
+  background-position: -803px -98px;
+}
+.card-kingSpades {
+  background-position: -876px -98px;
+}
+.card-aceHearts {
+  background-position: 0      -196px;
+}
+.card-twoHearts {
+  background-position: -73px -196px;
+}
+.card-threeHearts {
+  background-position: -146px -196px;
+}
+.card-fourHearts {
+  background-position: -219px -196px;
+}
+.card-fiveHearts {
+  background-position: -292px -196px;
+}
+.card-sixHearts {
+  background-position: -365px -196px;
+}
+.card-sevenHearts{
+  background-position: -438px -196px;
+}
+.card-eightHearts {
+  background-position: -511px -196px;
+}
+.card-nineHearts {
+  background-position: -584px -196px;
+}
+.card-tenHearts {
+  background-position: -657px -196px;
+}
+.card-jackHearts {
+  background-position: -730px -196px;
+}
+.card-queenHearts {
+  background-position: -803px -196px;
+}
+.card-kingHearts {
+  background-position: -876px -196px;
+}
+.card-aceDiamonds {
+  background-position: 0      -294px;
+}
+.card-twoDiamonds {
+  background-position: -73px -294px;
+}
+.card-threeDiamonds {
+  background-position: -146px -294px;
+}
+.card-fourDiamonds {
+  background-position: -219px -294px;
+}
+.card-fiveDiamonds {
+  background-position: -292px -294px;
+}
+.card-sixDiamonds {
+  background-position: -365px -294px;
+}
+.card-sevenDiamonds{
+  background-position: -438px -294px;
+}
+.card-eightDiamonds {
+  background-position: -511px -294px;
+}
+.card-nineDiamonds {
+  background-position: -584px -294px;
+}
+.card-tenDiamonds {
+  background-position: -657px -294px;
+}
+.card-jackDiamonds {
+  background-position: -730px -294px;
+}
+.card-queenDiamonds {
+  background-position: -803px -294px;
+}
+.card-kingDiamonds {
+  background-position: -876px -294px;
+}
