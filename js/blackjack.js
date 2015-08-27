@@ -18,11 +18,10 @@ $(document).ready(function() {
 		gameLogic.reset();
 	});
 });
-
 var deck = {
+	dealt: false,
 	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
 	cardValues: {'aceClubs': 11, 'twoClubs': 2, 'threeClubs': 3, 'fourClubs': 4, 'fiveClubs': 5, 'sixClubs': 6, 'sevenClubs': 7, 'eightClubs': 8, 'nineClubs': 9, 'tenClubs': 10, 'jackClubs': 10, 'queenClubs': 10, 'kingClubs': 10, 'aceSpades': 11, 'twoSpades': 2, 'threeSpades': 3, 'fourSpades': 4, 'fiveSpades': 5, 'sixSpades': 6, 'sevenSpades': 7, 'eightSpades': 8, 'nineSpades': 9, 'tenSpades': 10, 'jackSpades': 10, 'queenSpades': 10, 'kingSpades': 10, 'aceHearts': 11, 'twoHearts': 2, 'threeHearts': 3, 'fourHearts': 4, 'fiveHearts': 5, 'sixHearts': 6, 'sevenHearts': 7, 'eightHearts': 8, 'nineHearts': 9, 'tenHearts': 10, 'jackHearts': 10, 'queenHearts': 10, 'kingHearts': 10, 'aceDiamonds': 11, 'twoDiamonds': 2, 'threeDiamonds': 3, 'fourDiamonds': 4, 'fiveDiamonds': 5, 'sixDiamonds': 6, 'sevenDiamonds': 7, 'eightDiamonds': 8, 'nineDiamonds': 9, 'tenDiamonds': 10, 'jackDiamonds': 10, 'queenDiamonds': 10, 'kingDiamonds': 10},
-	dealt: false,
 //Generates a random number between 0 and 51 and returns a card object from the cards array.
 	randomCard: function() {
 		var card = Math.floor((Math.random()*51)+1);
@@ -33,11 +32,11 @@ var deck = {
 		return deck.cardValues[card];
 	}
 };
-
 var player = {
 	bank: 500,
 	score: 0,
 	playerHand: [],
+	playerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 	printBank: function() {
 		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
 	},
@@ -46,7 +45,7 @@ var player = {
 			player.playerHand = [deck.randomCard(), deck.randomCard()];
 			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
 			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			return $("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
+			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
 		}
 	},
 /* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
@@ -58,33 +57,23 @@ re-generates and displays the entire player hand on screen, calculates if the hi
 		}
 		else {
 			var newCard = deck.randomCard();
-			var newCardValue = deck.calcScore(newCard);
+			player.score += deck.calcScore(newCard);
 			player.playerHand.push(newCard);
-			player.score += newCardValue;
-			//For each card in the player's hand
-			for (var y=0; y<player.playerHand.length; y++) {
-				//Check to see if one is an Ace
-				for (var i=0; i<4; i++) {
-				//If the player has an Ace and has just busted, subtracts 10 from player's score to make the Ace count for 1 instead of 11
-					if ((player.playerHand[y] === gameLogic.playerAceCheck[i]) && ((player.score) > 21)) {
-						delete gameLogic.playerAceCheck[i];
-						player.score -= 10;
-					}
-				}
-			}
+			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
+			player.score = aceCheckResult[0];
+			player.playerAces = aceCheckResult[1];
 			$('#displayPlayerScore').empty();
 			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
 			$("<i class=card-" + newCard +"></i>").appendTo('.playerHand');
-			console.log("After Player Hit: " + deck.cards.length);
 			return gameLogic.calcBust(player.score, dealer.score);
 		}
 	}
 };
-
 var dealer = {
 	bank: 500,
 	score: 0,
 	dealerHand: [],
+	dealerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 	dealHand: function() {
 		if (deck.dealt === false) {
 			deck.dealt = true;
@@ -100,20 +89,11 @@ re-generates and displays the entire dealer hand on screen.
 	hit: function() {
 		if (deck.dealt === true) {
 			var newCard = deck.randomCard();
-			var newCardValue = deck.calcScore(newCard);
+			dealer.score += deck.calcScore(newCard);
 			dealer.dealerHand.push(newCard);
-			dealer.score += newCardValue;
-			//For each card in the dealer's hand
-			for (var y=0; y<dealer.dealerHand.length; y++) {
-				//Check to see if one is an Ace
-				for (var i=0; i<4; i++) {
-				//If the dealer has an Ace and has just busted, subtracts 10 from dealer's score to make the Ace count for 1 instead of 11
-					if ((dealer.dealerHand[y] === gameLogic.dealerAceCheck[i]) && ((dealer.score) > 21)) {
-						delete gameLogic.dealerAceCheck[i];
-						dealer.score -= 10;
-					}
-				}
-			}
+			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.playerAces);
+			dealer.score = aceCheckResult[0];
+			dealer.dealerAces = aceCheckResult[1];
 		}
 	},
 	showHand: function() {
@@ -124,23 +104,20 @@ re-generates and displays the entire dealer hand on screen.
 		}
 	}
 };
-
 var gameLogic = {
-	playerAceCheck: {0:'aceClubs', 1:'aceSpades', 2:'aceHearts', 3:'aceDiamonds'},
-	dealerAceCheck: {0:'aceClubs', 1:'aceSpades', 2:'aceHearts', 3:'aceDiamonds'},
-	//This is fucked, figure out how to implement this.
-	aceCheck: function(hand) {
+	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
 		for (var y=0; y<hand.length; y++) {
 			//Check to see if one is an Ace
-			for (var i=0; i<4; i++) {
-			//If the hand has an Ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11
-				if ((hand[y] === gameLogic.dealerAceCheck[i]) && ((hand.score) > 21)) {
-					delete gameLogic.dealerAceCheck[i];
-					hand.score -= 10;
+			for (var i=0; i<aces.length; i++) {
+			//If the hand has an ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11 and removes that ace from subsequent ace checks.
+				if ((hand[y] === aces[i]) && ((score) > 21)) {
+					aces.splice(i,1);
+					score -= 10;
 				}
 			}
 		}
+		return [score, aces];
 	},
 //Calculates if either player goes over 21 and busts. This function is called when each card is dealt.
 	calcBust: function(playerScore, dealerScore) {
@@ -208,12 +185,12 @@ var gameLogic = {
 		}
 		return gameLogic.calcWinner(player.score, dealer.score);
 	},
-//Resets all critical game components to prepare for a fresh hand of blackjack.
+//Resets all critical game components and UI elements to prepare for a fresh hand of blackjack.
 	reset: function() {
 		$('.playerHand, .dealerHand, #displayPlayerScore, #displayDealerScore, #wPlayer, #lPlayer, #wDealer, #lDealer, #pTied, #dTied').empty();
 		deck.dealt = false;
-		gameLogic.playerAceCheck = {0:'aceClubs', 1:'aceSpades', 2:'aceHearts', 3:'aceDiamonds'};
-		gameLogic.dealerAceCheck = {0:'aceClubs', 1:'aceSpades', 2:'aceHearts', 3:'aceDiamonds'};
+		player.playerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+		dealer.dealerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 		player.score = 0;
 		dealer.score = 0;
 	}
