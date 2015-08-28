@@ -44,6 +44,9 @@ var player = {
 		if (deck.dealt === false) {
 			player.playerHand = [deck.randomCard(), deck.randomCard()];
 			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
+			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
+			player.score = aceCheckResult[0];
+			player.playerAces = aceCheckResult[1];
 			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
 			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
 		}
@@ -79,6 +82,9 @@ var dealer = {
 			deck.dealt = true;
 			dealer.dealerHand = [deck.randomCard(), deck.randomCard()]
 			dealer.score = deck.calcScore(dealer.dealerHand[0]) + deck.calcScore(dealer.dealerHand[1]);
+			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
+			dealer.score = aceCheckResult[0];
+			dealer.dealerAces = aceCheckResult[1];
 			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
 			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
 		}
@@ -91,7 +97,7 @@ re-generates and displays the entire dealer hand on screen.
 			var newCard = deck.randomCard();
 			dealer.score += deck.calcScore(newCard);
 			dealer.dealerHand.push(newCard);
-			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.playerAces);
+			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
 			dealer.score = aceCheckResult[0];
 			dealer.dealerAces = aceCheckResult[1];
 		}
