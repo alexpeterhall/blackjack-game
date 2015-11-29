@@ -14,20 +14,17 @@ $(document).ready(function() {
 	$('#stand').click(function() {
 		gameLogic.stand();
 	});
-	$('#reset').click(function() {
-		gameLogic.reset();
-	});
 });
 var deck = {
 	dealt: false,
 	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
 	cardValues: {'aceClubs': 11, 'twoClubs': 2, 'threeClubs': 3, 'fourClubs': 4, 'fiveClubs': 5, 'sixClubs': 6, 'sevenClubs': 7, 'eightClubs': 8, 'nineClubs': 9, 'tenClubs': 10, 'jackClubs': 10, 'queenClubs': 10, 'kingClubs': 10, 'aceSpades': 11, 'twoSpades': 2, 'threeSpades': 3, 'fourSpades': 4, 'fiveSpades': 5, 'sixSpades': 6, 'sevenSpades': 7, 'eightSpades': 8, 'nineSpades': 9, 'tenSpades': 10, 'jackSpades': 10, 'queenSpades': 10, 'kingSpades': 10, 'aceHearts': 11, 'twoHearts': 2, 'threeHearts': 3, 'fourHearts': 4, 'fiveHearts': 5, 'sixHearts': 6, 'sevenHearts': 7, 'eightHearts': 8, 'nineHearts': 9, 'tenHearts': 10, 'jackHearts': 10, 'queenHearts': 10, 'kingHearts': 10, 'aceDiamonds': 11, 'twoDiamonds': 2, 'threeDiamonds': 3, 'fourDiamonds': 4, 'fiveDiamonds': 5, 'sixDiamonds': 6, 'sevenDiamonds': 7, 'eightDiamonds': 8, 'nineDiamonds': 9, 'tenDiamonds': 10, 'jackDiamonds': 10, 'queenDiamonds': 10, 'kingDiamonds': 10},
-//Generates a random number between 0 and 51 and returns a card object from the cards array.
+	//Generates a random number between 0 and 51 and returns a card object from the cards array.
 	randomCard: function() {
 		var card = Math.floor((Math.random()*51)+1);
 		return deck.cards[card];
 	},
-//Takes a card as an argument and returns the corresponding value.
+	//Takes a card as an argument and returns the corresponding value.
 	calcScore: function(card) {
 		return deck.cardValues[card];
 	}
@@ -41,6 +38,7 @@ var player = {
 		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
 	},
 	dealHand: function() {
+		gameLogic.reset();
 		if (deck.dealt === false) {
 			player.playerHand = [deck.randomCard(), deck.randomCard()];
 			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
@@ -51,11 +49,14 @@ var player = {
 			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
 		}
 	},
-/* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
-re-generates and displays the entire player hand on screen, calculates if the hit resulted in a player bust.
-*/
+	/* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
+	re-generates and displays the entire player hand on screen, calculates if the hit resulted in a player bust.
+	*/
 	hit: function() {
 		if (deck.dealt === false) {
+			return null;
+		}
+		else if (gameLogic.handOver === true) {
 			return null;
 		}
 		else {
@@ -89,9 +90,9 @@ var dealer = {
 			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
 		}
 	},
-/*Generates a random card, pushes that card onto the dealerHand array, adds the card value to dealer's score,
-re-generates and displays the entire dealer hand on screen.
-*/
+	/*Generates a random card, pushes that card onto the dealerHand array, adds the card value to dealer's score,
+	re-generates and displays the entire dealer hand on screen.
+	*/
 	hit: function() {
 		if (deck.dealt === true) {
 			var newCard = deck.randomCard();
@@ -111,6 +112,7 @@ re-generates and displays the entire dealer hand on screen.
 	}
 };
 var gameLogic = {
+	handOver: false,
 	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
 		for (var y=0; y<hand.length; y++) {
@@ -125,62 +127,53 @@ var gameLogic = {
 		}
 		return [score, aces];
 	},
-//Calculates if either player goes over 21 and busts. This function is called when each card is dealt.
+	//Calculates if either player goes over 21 and busts. This function is called when each card is dealt.
 	calcBust: function(playerScore, dealerScore) {
 		if (playerScore > 21) {
-			$("<div id='playerLose'>Player Lost!</div>").appendTo('#lPlayer');
-			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
-			//WTF ACTUALLY why won't this call?
+			gameLogic.handOver = true;
 			dealer.showHand();
-			alert("Bust! You lose.");
-			gameLogic.reset();
+			$("<div id='playerLose'>Bust! You lose!</div>").appendTo('#lPlayer');
+			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
 		else if (dealerScore > 21) {
-			$("<div id='playerWin'>Player Wins!</div>").appendTo('#wPlayer');
+			gameLogic.handOver = true;
+			dealer.showHand();
+			$("<div id='playerLose'>Dealer busts! You win!</div>").appendTo('#lPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-			alert("Dealer Busts. You Win!");
-			gameLogic.reset();
 		}
 		else {
 			return null;
 		}
 	},
-//Calculates who wins once the player decides to stand.
+	//Calculates who wins once the player decides to stand.
 	calcWinner: function(playerScore, dealerScore) {
 		if (playerScore > 21) {
-			$("<div id='playerLose'>Player Lost!</div>").appendTo('#lPlayer');
+			$("<div id='playerLose'>Bust! You Lose!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
-			alert("Bust! You Lose!");
-			gameLogic.reset();
 		}
 		else if (dealerScore > 21) {
-			$("<div id='playerWin'>Player Wins!</div>").appendTo('#wPlayer');
+			$("<div id='playerWin'>Dealer busts! You win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-			alert("Dealer Busts! You win!");
-			gameLogic.reset();
 		}
 		else if (playerScore === dealerScore) {
 			$("<div id='playerTied'>You Tied!</div>").appendTo('#pTied');
 			$("<div id='dealerTied'>You Tied!</div>").appendTo('#dTied');
-			alert("Tie!");
-			gameLogic.reset();
 		}
 		else if (playerScore > dealerScore) {
-			$("<div id='playerWin'>Player Wins!</div>").appendTo('#wPlayer');
+			$("<div id='playerWin'>You Win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-			alert("You win!");
-			gameLogic.reset();
 		}
 		else {
-			$("<div id='playerLose'>Player Lost!</div>").appendTo('#lPlayer');
+			$("<div id='playerLose'>You Lost!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
-			alert("You lose!");
-			gameLogic.reset();
 		}
 	},
-//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
+	//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
 	stand: function() {
 		if (deck.dealt === false) {
+			return null;
+		}
+		else if (gameLogic.handOver === true) {
 			return null;
 		}
 		else {
@@ -189,12 +182,14 @@ var gameLogic = {
 			}
 		dealer.showHand();
 		}
+		gameLogic.handOver = true;
 		return gameLogic.calcWinner(player.score, dealer.score);
 	},
-//Resets all critical game components and UI elements to prepare for a fresh hand of blackjack.
+	//Resets all critical game components and UI elements to prepare for a fresh hand of blackjack.
 	reset: function() {
 		$('.playerHand, .dealerHand, #displayPlayerScore, #displayDealerScore, #wPlayer, #lPlayer, #wDealer, #lDealer, #pTied, #dTied').empty();
 		deck.dealt = false;
+		gameLogic.handOver = false;
 		player.playerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 		dealer.dealerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 		player.score = 0;
