@@ -4,9 +4,7 @@ $(document).ready(function() {
 	$('#rules').accordion({collapsible: true, active: false});
 	player.printBank();
 	$('#dealNewHand').click(function() {
-		//player must be called first
-		player.dealHand();
-		dealer.dealHand();
+		gameLogic.dealHand();
 	});
 	$('#hit').click(function() {
 		player.hit();
@@ -34,20 +32,9 @@ var player = {
 	score: 0,
 	playerHand: [],
 	playerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	aceCheckResult: undefined,
 	printBank: function() {
 		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
-	},
-	dealHand: function() {
-		gameLogic.reset();
-		if (deck.dealt === false) {
-			player.playerHand = [deck.randomCard(), deck.randomCard()];
-			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
-			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
-			player.score = aceCheckResult[0];
-			player.playerAces = aceCheckResult[1];
-			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
-		}
 	},
 	/* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
 	re-generates and displays the entire player hand on screen, calculates if the hit resulted in a player bust.
@@ -78,18 +65,7 @@ var dealer = {
 	score: 0,
 	dealerHand: [],
 	dealerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
-	dealHand: function() {
-		if (deck.dealt === false) {
-			deck.dealt = true;
-			dealer.dealerHand = [deck.randomCard(), deck.randomCard()]
-			dealer.score = deck.calcScore(dealer.dealerHand[0]) + deck.calcScore(dealer.dealerHand[1]);
-			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
-			dealer.score = aceCheckResult[0];
-			dealer.dealerAces = aceCheckResult[1];
-			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
-			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
-		}
-	},
+	aceCheckResult: undefined,
 	/*Generates a random card, pushes that card onto the dealerHand array, adds the card value to dealer's score,
 	re-generates and displays the entire dealer hand on screen.
 	*/
@@ -113,6 +89,27 @@ var dealer = {
 };
 var gameLogic = {
 	handOver: false,
+	//Deals initial player and dealer hands, checks for aces and adjusts scores accordingly.
+	dealHand: function() {
+		gameLogic.reset();
+		if (deck.dealt === false) {
+			deck.dealt = true;
+			player.playerHand = [deck.randomCard(), deck.randomCard()];
+			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
+			player.aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
+			player.score = player.aceCheckResult[0];
+			player.playerAces = player.aceCheckResult[1];
+			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
+			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
+			dealer.dealerHand = [deck.randomCard(), deck.randomCard()]
+			dealer.score = deck.calcScore(dealer.dealerHand[0]) + deck.calcScore(dealer.dealerHand[1]);
+			dealer.aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
+			dealer.score = dealer.aceCheckResult[0];
+			dealer.dealerAces = dealer.aceCheckResult[1];
+			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
+			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
+		}
+	},
 	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
 		for (var y=0; y<hand.length; y++) {
