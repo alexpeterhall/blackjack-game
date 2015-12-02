@@ -28,62 +28,31 @@ var deck = {
 	}
 };
 var player = {
+	type: "player",
 	bank: 500,
 	score: 0,
-	playerHand: [],
-	playerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	hand: [],
+	aces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 	aceCheckResult: undefined,
+	hit: function () {
+		gameLogic.hit(player);
+	},
 	printBank: function() {
 		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
-	},
-	/* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
-	re-generates and displays the entire player hand on screen, calculates if the hit resulted in a player bust.
-	*/
-	hit: function() {
-		if (deck.dealt === false) {
-			return null;
-		}
-		else if (gameLogic.handOver === true) {
-			return null;
-		}
-		else {
-			var newCard = deck.randomCard();
-			player.score += deck.calcScore(newCard);
-			player.playerHand.push(newCard);
-			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
-			player.score = aceCheckResult[0];
-			player.playerAces = aceCheckResult[1];
-			$('#displayPlayerScore').empty();
-			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + newCard +"></i>").appendTo('.playerHand');
-			return gameLogic.calcBust(player.score, dealer.score);
-		}
 	}
 };
 var dealer = {
+	type: "dealer",
 	bank: 500,
 	score: 0,
-	dealerHand: [],
-	dealerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	hand: [],
+	aces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
 	aceCheckResult: undefined,
-	/*Generates a random card, pushes that card onto the dealerHand array, adds the card value to dealer's score,
-	re-generates and displays the entire dealer hand on screen.
-	*/
-	hit: function() {
-		if (deck.dealt === true) {
-			var newCard = deck.randomCard();
-			dealer.score += deck.calcScore(newCard);
-			dealer.dealerHand.push(newCard);
-			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
-			dealer.score = aceCheckResult[0];
-			dealer.dealerAces = aceCheckResult[1];
-		}
-	},
 	showHand: function() {
 		$('.dealerHand, #displayDealerScore').empty();
 		$("<h3>Dealer Hand: " + dealer.score + "</h3>").appendTo('#displayDealerScore');
-		for (i=0; i<dealer.dealerHand.length; i++) {
-			$("<i class=card-" + dealer.dealerHand[i] + ">").appendTo('.dealerHand');
+		for (i=0; i<dealer.hand.length; i++) {
+			$("<i class=card-" + dealer.hand[i] + ">").appendTo('.dealerHand');
 		}
 	}
 };
@@ -94,31 +63,81 @@ var gameLogic = {
 		gameLogic.reset();
 		if (deck.dealt === false) {
 			deck.dealt = true;
-			player.playerHand = [deck.randomCard(), deck.randomCard()];
-			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
-			player.aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
+			player.hand = [deck.randomCard(), deck.randomCard()];
+			player.score = deck.calcScore(player.hand[0]) + deck.calcScore(player.hand[1]);
+			player.aceCheckResult = gameLogic.aceCheck(player.hand, player.score, player.aces);
 			player.score = player.aceCheckResult[0];
-			player.playerAces = player.aceCheckResult[1];
+			player.aces = player.aceCheckResult[1];
 			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
-			dealer.dealerHand = [deck.randomCard(), deck.randomCard()]
-			dealer.score = deck.calcScore(dealer.dealerHand[0]) + deck.calcScore(dealer.dealerHand[1]);
-			dealer.aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
+			$("<i class=card-" + player.hand[0] +"></i><i class=card-" + player.hand[1] +"></i>").appendTo('.playerHand');
+			dealer.hand = [deck.randomCard(), deck.randomCard()]
+			dealer.score = deck.calcScore(dealer.hand[0]) + deck.calcScore(dealer.hand[1]);
+			dealer.aceCheckResult = gameLogic.aceCheck(dealer.hand, dealer.score, dealer.aces);
 			dealer.score = dealer.aceCheckResult[0];
-			dealer.dealerAces = dealer.aceCheckResult[1];
+			dealer.aces = dealer.aceCheckResult[1];
 			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
-			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
+			$("<i class=card-" + dealer.hand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
 		}
+	},
+	/* (Player or dealer) Generates a random card, pushes that card onto the hand array, adds the card value to the score, checks for aces and adjusts score accordingly, 
+	updates score and cards on the screen, calculates if the hit resulted in a bust.
+	*/
+	hit: function(obj) {
+		if (deck.dealt === false) {
+			return null;
+		}
+		else if (gameLogic.handOver === true) {
+			return null;
+		}
+		else {
+			if (obj.type === "player") {
+				var newCard = deck.randomCard();
+				obj.hand.push(newCard);
+				obj.score += deck.calcScore(newCard);
+				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
+				obj.score = obj.aceCheckResult[0];
+				obj.aces = obj.aceCheckResult[1];
+				$('#displayPlayerScore').empty();
+				$("<h3>Your Hand: " + obj.score + "</h3>").appendTo('#displayPlayerScore');
+				$("<i class=card-" + newCard +"></i>").appendTo('.playerHand');
+				return gameLogic.calcBust(player.score, dealer.score);
+			}
+			else if (obj.type === "dealer") {
+				var newCard = deck.randomCard();
+				obj.hand.push(newCard);
+				obj.score += deck.calcScore(newCard);
+				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
+				obj.score = obj.aceCheckResult[0];
+				obj.aces = obj.aceCheckResult[1];
+			}
+		}
+	},
+	//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
+	stand: function() {
+		if (deck.dealt === false) {
+			return null;
+		}
+		else if (gameLogic.handOver === true) {
+			return null;
+		}
+		else {
+			while (dealer.score < 17) {
+				gameLogic.hit(dealer);
+			}
+		gameLogic.handOver = true;
+		dealer.showHand();
+		}
+		return gameLogic.calcWinner(player.score, dealer.score);
 	},
 	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
 		for (var y=0; y<hand.length; y++) {
-			//Check to see if one is an Ace
+			//Check to see if one is an ace
 			for (var i=0; i<aces.length; i++) {
-			//If the hand has an ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11 and removes that ace from subsequent ace checks.
+				//If the hand has an ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11 and removes that ace from subsequent ace checks.
 				if ((hand[y] === aces[i]) && ((score) > 21)) {
-					aces.splice(i,1);
 					score -= 10;
+					aces.splice(i,1);
 				}
 			}
 		}
@@ -137,9 +156,6 @@ var gameLogic = {
 			dealer.showHand();
 			$("<div id='playerLose'>Dealer busts! You win!</div>").appendTo('#lPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-		}
-		else {
-			return null;
 		}
 	},
 	//Calculates who wins once the player decides to stand.
@@ -165,30 +181,13 @@ var gameLogic = {
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
 	},
-	//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
-	stand: function() {
-		if (deck.dealt === false) {
-			return null;
-		}
-		else if (gameLogic.handOver === true) {
-			return null;
-		}
-		else {
-			while (dealer.score < 17) {
-				dealer.hit();
-			}
-		dealer.showHand();
-		}
-		gameLogic.handOver = true;
-		return gameLogic.calcWinner(player.score, dealer.score);
-	},
 	//Resets all critical game components and UI elements to prepare for a fresh hand of blackjack.
 	reset: function() {
 		$('.playerHand, .dealerHand, #displayPlayerScore, #displayDealerScore, #wPlayer, #lPlayer, #wDealer, #lDealer, #pTied, #dTied').empty();
 		deck.dealt = false;
 		gameLogic.handOver = false;
-		player.playerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
-		dealer.dealerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+		player.aces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'];
+		dealer.aces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'];
 		player.score = 0;
 		dealer.score = 0;
 	}
