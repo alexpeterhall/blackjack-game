@@ -15,16 +15,14 @@ $(document).ready(function() {
 });
 var deck = {
 	dealt: false,
-	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
+	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds', 'aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
 	cardValues: {'aceClubs': 11, 'twoClubs': 2, 'threeClubs': 3, 'fourClubs': 4, 'fiveClubs': 5, 'sixClubs': 6, 'sevenClubs': 7, 'eightClubs': 8, 'nineClubs': 9, 'tenClubs': 10, 'jackClubs': 10, 'queenClubs': 10, 'kingClubs': 10, 'aceSpades': 11, 'twoSpades': 2, 'threeSpades': 3, 'fourSpades': 4, 'fiveSpades': 5, 'sixSpades': 6, 'sevenSpades': 7, 'eightSpades': 8, 'nineSpades': 9, 'tenSpades': 10, 'jackSpades': 10, 'queenSpades': 10, 'kingSpades': 10, 'aceHearts': 11, 'twoHearts': 2, 'threeHearts': 3, 'fourHearts': 4, 'fiveHearts': 5, 'sixHearts': 6, 'sevenHearts': 7, 'eightHearts': 8, 'nineHearts': 9, 'tenHearts': 10, 'jackHearts': 10, 'queenHearts': 10, 'kingHearts': 10, 'aceDiamonds': 11, 'twoDiamonds': 2, 'threeDiamonds': 3, 'fourDiamonds': 4, 'fiveDiamonds': 5, 'sixDiamonds': 6, 'sevenDiamonds': 7, 'eightDiamonds': 8, 'nineDiamonds': 9, 'tenDiamonds': 10, 'jackDiamonds': 10, 'queenDiamonds': 10, 'kingDiamonds': 10},
 	//Generates a random number between 0 and 51 and returns a card object from the cards array.
 	randomCard: function() {
-		var card = Math.floor((Math.random()*51)+1);
-		return deck.cards[card];
-	},
-	//Takes a card as an argument and returns the corresponding value.
-	calcScore: function(card) {
-		return deck.cardValues[card];
+		var randomNumber = Math.floor(Math.random()*deck.cards.length);
+		card = deck.cards[randomNumber];
+		deck.cards.splice(randomNumber,1);
+		return {card, cardValue: deck.cardValues[card]};
 	}
 };
 var player = {
@@ -58,25 +56,16 @@ var dealer = {
 };
 var gameLogic = {
 	handOver: false,
-	//Deals initial player and dealer hands, checks for aces and adjusts scores accordingly.
+	dealCounter: 0,
+	//Deals player and dealer two cards each for a new hand
 	dealHand: function() {
 		gameLogic.reset();
 		if (deck.dealt === false) {
 			deck.dealt = true;
-			player.hand = [deck.randomCard(), deck.randomCard()];
-			player.score = deck.calcScore(player.hand[0]) + deck.calcScore(player.hand[1]);
-			player.aceCheckResult = gameLogic.aceCheck(player.hand, player.score, player.aces);
-			player.score = player.aceCheckResult[0];
-			player.aces = player.aceCheckResult[1];
-			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + player.hand[0] +"></i><i class=card-" + player.hand[1] +"></i>").appendTo('.playerHand');
-			dealer.hand = [deck.randomCard(), deck.randomCard()]
-			dealer.score = deck.calcScore(dealer.hand[0]) + deck.calcScore(dealer.hand[1]);
-			dealer.aceCheckResult = gameLogic.aceCheck(dealer.hand, dealer.score, dealer.aces);
-			dealer.score = dealer.aceCheckResult[0];
-			dealer.aces = dealer.aceCheckResult[1];
+			gameLogic.hit(player), gameLogic.hit(player), gameLogic.hit(dealer), gameLogic.hit(dealer);
 			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
 			$("<i class=card-" + dealer.hand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
+			gameLogic.dealCounter++;
 		}
 	},
 	/* (Player or dealer) Generates a random card, pushes that card onto the hand array, adds the card value to the score, checks for aces and adjusts score accordingly, 
@@ -92,20 +81,20 @@ var gameLogic = {
 		else {
 			if (obj.type === "player") {
 				var newCard = deck.randomCard();
-				obj.hand.push(newCard);
-				obj.score += deck.calcScore(newCard);
+				obj.hand.push(newCard.card);
+				obj.score += newCard.cardValue;
 				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
 				obj.score = obj.aceCheckResult[0];
 				obj.aces = obj.aceCheckResult[1];
 				$('#displayPlayerScore').empty();
 				$("<h3>Your Hand: " + obj.score + "</h3>").appendTo('#displayPlayerScore');
-				$("<i class=card-" + newCard +"></i>").appendTo('.playerHand');
+				$("<i class=card-" + newCard.card +"></i>").appendTo('.playerHand');
 				return gameLogic.calcBust(player.score, dealer.score);
 			}
 			else if (obj.type === "dealer") {
 				var newCard = deck.randomCard();
-				obj.hand.push(newCard);
-				obj.score += deck.calcScore(newCard);
+				obj.hand.push(newCard.card);
+				obj.score += newCard.cardValue;
 				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
 				obj.score = obj.aceCheckResult[0];
 				obj.aces = obj.aceCheckResult[1];
@@ -190,6 +179,13 @@ var gameLogic = {
 		dealer.aces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'];
 		player.score = 0;
 		dealer.score = 0;
+		player.hand = [];
+		dealer.hand = [];
+		//Resets the deck to a full two decks after 10 hands have been dealt.
+		if (gameLogic.dealCounter === 10) {
+			deck.cards = ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds', 'aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'];
+			gameLogic.dealCounter = 0;
+		}
 	}
 };
 }());
