@@ -4,9 +4,7 @@ $(document).ready(function() {
 	$('#rules').accordion({collapsible: true, active: false});
 	player.printBank();
 	$('#dealNewHand').click(function() {
-		//player must be called first
-		player.dealHand();
-		dealer.dealHand();
+		gameLogic.dealHand();
 	});
 	$('#hit').click(function() {
 		player.hit();
@@ -17,42 +15,63 @@ $(document).ready(function() {
 });
 var deck = {
 	dealt: false,
-	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
+	cards: ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds', 'aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'],
 	cardValues: {'aceClubs': 11, 'twoClubs': 2, 'threeClubs': 3, 'fourClubs': 4, 'fiveClubs': 5, 'sixClubs': 6, 'sevenClubs': 7, 'eightClubs': 8, 'nineClubs': 9, 'tenClubs': 10, 'jackClubs': 10, 'queenClubs': 10, 'kingClubs': 10, 'aceSpades': 11, 'twoSpades': 2, 'threeSpades': 3, 'fourSpades': 4, 'fiveSpades': 5, 'sixSpades': 6, 'sevenSpades': 7, 'eightSpades': 8, 'nineSpades': 9, 'tenSpades': 10, 'jackSpades': 10, 'queenSpades': 10, 'kingSpades': 10, 'aceHearts': 11, 'twoHearts': 2, 'threeHearts': 3, 'fourHearts': 4, 'fiveHearts': 5, 'sixHearts': 6, 'sevenHearts': 7, 'eightHearts': 8, 'nineHearts': 9, 'tenHearts': 10, 'jackHearts': 10, 'queenHearts': 10, 'kingHearts': 10, 'aceDiamonds': 11, 'twoDiamonds': 2, 'threeDiamonds': 3, 'fourDiamonds': 4, 'fiveDiamonds': 5, 'sixDiamonds': 6, 'sevenDiamonds': 7, 'eightDiamonds': 8, 'nineDiamonds': 9, 'tenDiamonds': 10, 'jackDiamonds': 10, 'queenDiamonds': 10, 'kingDiamonds': 10},
 	//Generates a random number between 0 and 51 and returns a card object from the cards array.
 	randomCard: function() {
-		var card = Math.floor((Math.random()*51)+1);
-		return deck.cards[card];
-	},
-	//Takes a card as an argument and returns the corresponding value.
-	calcScore: function(card) {
-		return deck.cardValues[card];
+		var randomNumber = Math.floor(Math.random()*deck.cards.length);
+		card = deck.cards[randomNumber];
+		deck.cards.splice(randomNumber,1);
+		return {card, cardValue: deck.cardValues[card]};
 	}
 };
 var player = {
+	type: "player",
 	bank: 500,
 	score: 0,
-	playerHand: [],
-	playerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	hand: [],
+	aces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	aceCheckResult: undefined,
+	hit: function () {
+		gameLogic.hit(player);
+	},
 	printBank: function() {
 		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
-	},
+	}
+};
+var dealer = {
+	type: "dealer",
+	bank: 500,
+	score: 0,
+	hand: [],
+	aces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+	aceCheckResult: undefined,
+	showHand: function() {
+		$('.dealerHand, #displayDealerScore').empty();
+		$("<h3>Dealer Hand: " + dealer.score + "</h3>").appendTo('#displayDealerScore');
+		for (i=0; i<dealer.hand.length; i++) {
+			$("<i class=card-" + dealer.hand[i] + ">").appendTo('.dealerHand');
+		}
+	}
+};
+var gameLogic = {
+	handOver: false,
+	dealCounter: 0,
+	//Deals player and dealer two cards each for a new hand
 	dealHand: function() {
 		gameLogic.reset();
 		if (deck.dealt === false) {
-			player.playerHand = [deck.randomCard(), deck.randomCard()];
-			player.score = deck.calcScore(player.playerHand[0]) + deck.calcScore(player.playerHand[1]);
-			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
-			player.score = aceCheckResult[0];
-			player.playerAces = aceCheckResult[1];
-			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + player.playerHand[0] +"></i><i class=card-" + player.playerHand[1] +"></i>").appendTo('.playerHand');
+			deck.dealt = true;
+			gameLogic.hit(player), gameLogic.hit(player), gameLogic.hit(dealer), gameLogic.hit(dealer);
+			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
+			$("<i class=card-" + dealer.hand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
+			gameLogic.dealCounter++;
 		}
 	},
-	/* Generates a random card, pushes that card onto the playerHand array, adds the card value to player's score,
-	re-generates and displays the entire player hand on screen, calculates if the hit resulted in a player bust.
+	/* (Player or dealer) Generates a random card, pushes that card onto the hand array, adds the card value to the score, checks for aces and adjusts score accordingly, 
+	updates score and cards on the screen, calculates if the hit resulted in a bust.
 	*/
-	hit: function() {
+	hit: function(obj) {
 		if (deck.dealt === false) {
 			return null;
 		}
@@ -60,68 +79,54 @@ var player = {
 			return null;
 		}
 		else {
-			var newCard = deck.randomCard();
-			player.score += deck.calcScore(newCard);
-			player.playerHand.push(newCard);
-			var aceCheckResult = gameLogic.aceCheck(player.playerHand, player.score, player.playerAces);
-			player.score = aceCheckResult[0];
-			player.playerAces = aceCheckResult[1];
-			$('#displayPlayerScore').empty();
-			$("<h3>Your Hand: " + player.score + "</h3>").appendTo('#displayPlayerScore');
-			$("<i class=card-" + newCard +"></i>").appendTo('.playerHand');
-			return gameLogic.calcBust(player.score, dealer.score);
+			if (obj.type === "player") {
+				var newCard = deck.randomCard();
+				obj.hand.push(newCard.card);
+				obj.score += newCard.cardValue;
+				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
+				obj.score = obj.aceCheckResult[0];
+				obj.aces = obj.aceCheckResult[1];
+				$('#displayPlayerScore').empty();
+				$("<h3>Your Hand: " + obj.score + "</h3>").appendTo('#displayPlayerScore');
+				$("<i class=card-" + newCard.card +"></i>").appendTo('.playerHand');
+				return gameLogic.calcBust(player.score, dealer.score);
+			}
+			else if (obj.type === "dealer") {
+				var newCard = deck.randomCard();
+				obj.hand.push(newCard.card);
+				obj.score += newCard.cardValue;
+				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
+				obj.score = obj.aceCheckResult[0];
+				obj.aces = obj.aceCheckResult[1];
+			}
 		}
-	}
-};
-var dealer = {
-	bank: 500,
-	score: 0,
-	dealerHand: [],
-	dealerAces: ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
-	dealHand: function() {
+	},
+	//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
+	stand: function() {
 		if (deck.dealt === false) {
-			deck.dealt = true;
-			dealer.dealerHand = [deck.randomCard(), deck.randomCard()]
-			dealer.score = deck.calcScore(dealer.dealerHand[0]) + deck.calcScore(dealer.dealerHand[1]);
-			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
-			dealer.score = aceCheckResult[0];
-			dealer.dealerAces = aceCheckResult[1];
-			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
-			$("<i class=card-" + dealer.dealerHand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
+			return null;
 		}
+		else if (gameLogic.handOver === true) {
+			return null;
+		}
+		else {
+			while (dealer.score < 17) {
+				gameLogic.hit(dealer);
+			}
+		gameLogic.handOver = true;
+		dealer.showHand();
+		}
+		return gameLogic.calcWinner(player.score, dealer.score);
 	},
-	/*Generates a random card, pushes that card onto the dealerHand array, adds the card value to dealer's score,
-	re-generates and displays the entire dealer hand on screen.
-	*/
-	hit: function() {
-		if (deck.dealt === true) {
-			var newCard = deck.randomCard();
-			dealer.score += deck.calcScore(newCard);
-			dealer.dealerHand.push(newCard);
-			var aceCheckResult = gameLogic.aceCheck(dealer.dealerHand, dealer.score, dealer.dealerAces);
-			dealer.score = aceCheckResult[0];
-			dealer.dealerAces = aceCheckResult[1];
-		}
-	},
-	showHand: function() {
-		$('.dealerHand, #displayDealerScore').empty();
-		$("<h3>Dealer Hand: " + dealer.score + "</h3>").appendTo('#displayDealerScore');
-		for (i=0; i<dealer.dealerHand.length; i++) {
-			$("<i class=card-" + dealer.dealerHand[i] + ">").appendTo('.dealerHand');
-		}
-	}
-};
-var gameLogic = {
-	handOver: false,
 	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
 		for (var y=0; y<hand.length; y++) {
-			//Check to see if one is an Ace
+			//Check to see if one is an ace
 			for (var i=0; i<aces.length; i++) {
-			//If the hand has an ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11 and removes that ace from subsequent ace checks.
+				//If the hand has an ace and has just busted, subtracts 10 from hands's score to make the Ace count for 1 instead of 11 and removes that ace from subsequent ace checks.
 				if ((hand[y] === aces[i]) && ((score) > 21)) {
-					aces.splice(i,1);
 					score -= 10;
+					aces.splice(i,1);
 				}
 			}
 		}
@@ -140,9 +145,6 @@ var gameLogic = {
 			dealer.showHand();
 			$("<div id='playerLose'>Dealer busts! You win!</div>").appendTo('#lPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-		}
-		else {
-			return null;
 		}
 	},
 	//Calculates who wins once the player decides to stand.
@@ -168,32 +170,22 @@ var gameLogic = {
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
 	},
-	//Once player stands, it is the dealer's turn to hit if dealer score is less than 17.
-	stand: function() {
-		if (deck.dealt === false) {
-			return null;
-		}
-		else if (gameLogic.handOver === true) {
-			return null;
-		}
-		else {
-			while (dealer.score < 17) {
-				dealer.hit();
-			}
-		dealer.showHand();
-		}
-		gameLogic.handOver = true;
-		return gameLogic.calcWinner(player.score, dealer.score);
-	},
 	//Resets all critical game components and UI elements to prepare for a fresh hand of blackjack.
 	reset: function() {
 		$('.playerHand, .dealerHand, #displayPlayerScore, #displayDealerScore, #wPlayer, #lPlayer, #wDealer, #lDealer, #pTied, #dTied').empty();
 		deck.dealt = false;
 		gameLogic.handOver = false;
-		player.playerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
-		dealer.dealerAces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'],
+		player.aces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'];
+		dealer.aces = ['aceClubs', 'aceSpades', 'aceHearts', 'aceDiamonds'];
 		player.score = 0;
 		dealer.score = 0;
+		player.hand = [];
+		dealer.hand = [];
+		//Resets the deck to a full two decks after 10 hands have been dealt.
+		if (gameLogic.dealCounter === 10) {
+			deck.cards = ['aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds', 'aceClubs', 'twoClubs', 'threeClubs', 'fourClubs', 'fiveClubs', 'sixClubs', 'sevenClubs', 'eightClubs', 'nineClubs', 'tenClubs', 'jackClubs', 'queenClubs', 'kingClubs', 'aceSpades', 'twoSpades', 'threeSpades', 'fourSpades', 'fiveSpades', 'sixSpades', 'sevenSpades', 'eightSpades', 'nineSpades', 'tenSpades', 'jackSpades', 'queenSpades', 'kingSpades', 'aceHearts', 'twoHearts', 'threeHearts', 'fourHearts', 'fiveHearts', 'sixHearts', 'sevenHearts', 'eightHearts', 'nineHearts', 'tenHearts', 'jackHearts', 'queenHearts', 'kingHearts', 'aceDiamonds', 'twoDiamonds', 'threeDiamonds', 'fourDiamonds', 'fiveDiamonds', 'sixDiamonds', 'sevenDiamonds', 'eightDiamonds', 'nineDiamonds', 'tenDiamonds', 'jackDiamonds', 'queenDiamonds', 'kingDiamonds'];
+			gameLogic.dealCounter = 0;
+		}
 	}
 };
 }());

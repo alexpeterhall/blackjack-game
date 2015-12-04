@@ -14,6 +14,7 @@ img {
 	padding: 4px 0px 0px 1px;
 }
 #winLose {
+  height: 75px;
 	font-size: 1.5em;
 	font-family: 'Press Start 2P', cursive;
 	text-align: center;
