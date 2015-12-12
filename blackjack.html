@@ -59,9 +59,21 @@
 		</div>
 		<br />
 		
-		<div class="blackjackUI">				
+		<div class="blackjackUI">
+			<div class="row" id="bank">
+				<div class="col-md-12" id="playerBank"></div>
+			</div>
+
 			<div class="row">
-				<div class="col-md-12" align="center">
+				<div class="col-md-2 col-md-offset-5" align="center">
+					<input type="text" class="form-control" placeholder="Bet Amount" id="betAmount">
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3" align="center">
+					<br />
+					<button type="submit" class="btn btn-warning btn-lg" id="placeBet">Place Bet</button>
 					<input type='button' value="Deal New Hand" class='btn btn-success btn-lg' id="dealNewHand">
 					<input type='button' value="Hit" class='btn btn-danger btn-lg' id="hit">
 					<input type='button' value="Stand" class='btn btn-primary btn-lg' id="stand">

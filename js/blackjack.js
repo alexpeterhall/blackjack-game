@@ -1,8 +1,11 @@
 (function() {
 //Assigns functions to be called when UI buttons are clicked.
 $(document).ready(function() {
-	$('#rules').accordion({collapsible: true, active: false});
 	player.printBank();
+	$('#rules').accordion({collapsible: true, active: false});
+	$('#placeBet').click(function() {
+		gameLogic.placeBet();
+	});
 	$('#dealNewHand').click(function() {
 		gameLogic.dealHand();
 	});
@@ -36,7 +39,8 @@ var player = {
 		gameLogic.hit(player);
 	},
 	printBank: function() {
-		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
+		$('#playerBank').empty();
+		return $("<p><h2>Player Bank: </h2>$" + player.bank + "</p>").appendTo('#playerBank');
 	}
 };
 var dealer = {
@@ -56,11 +60,31 @@ var dealer = {
 };
 var gameLogic = {
 	handOver: false,
+	betPlaced: false,
+	pot: 0,
 	dealCounter: 0,
+	placeBet: function() {
+		var betAmount = parseInt(document.getElementById("betAmount").value);
+		if (gameLogic.betPlaced === true) {
+			return null;
+		}
+		else if (betAmount > player.bank){
+			alert("You cannot bet more money than you have in your bank!");
+		}
+		else if (Number.isInteger(betAmount)) {
+				gameLogic.pot = betAmount;
+				player.bank -= betAmount;
+				gameLogic.betPlaced = true;
+				player.printBank();
+		}
+		else {
+			alert("Please place a valid bet. Valid bets are whole numbers only.");
+		}
+	},
 	//Deals player and dealer two cards each for a new hand
 	dealHand: function() {
 		gameLogic.reset();
-		if (deck.dealt === false) {
+		if (deck.dealt === false && gameLogic.betPlaced === true) {
 			deck.dealt = true;
 			gameLogic.hit(player), gameLogic.hit(player), gameLogic.hit(dealer), gameLogic.hit(dealer);
 			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
@@ -115,6 +139,7 @@ var gameLogic = {
 			}
 		gameLogic.handOver = true;
 		dealer.showHand();
+		gameLogic.betPlaced = false;
 		}
 		return gameLogic.calcWinner(player.score, dealer.score);
 	},
@@ -137,12 +162,17 @@ var gameLogic = {
 		if (playerScore > 21) {
 			gameLogic.handOver = true;
 			dealer.showHand();
+			gameLogic.betPlaced = false;
+			player.printBank();
 			$("<div id='playerLose'>Bust! You lose!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
 		else if (dealerScore > 21) {
 			gameLogic.handOver = true;
 			dealer.showHand();
+			player.bank += gameLogic.pot*2;
+			gameLogic.betPlaced = true;
+			player.printBank();
 			$("<div id='playerLose'>Dealer busts! You win!</div>").appendTo('#lPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
 		}
@@ -150,22 +180,30 @@ var gameLogic = {
 	//Calculates who wins once the player decides to stand.
 	calcWinner: function(playerScore, dealerScore) {
 		if (playerScore > 21) {
+			player.printBank();
 			$("<div id='playerLose'>Bust! You Lose!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
 		else if (dealerScore > 21) {
+			player.bank += gameLogic.pot*2;
+			player.printBank();
 			$("<div id='playerWin'>Dealer busts! You win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
 		}
 		else if (playerScore === dealerScore) {
+			player.bank += gameLogic.pot;
+			player.printBank();
 			$("<div id='playerTied'>You Tied!</div>").appendTo('#pTied');
 			$("<div id='dealerTied'>You Tied!</div>").appendTo('#dTied');
 		}
 		else if (playerScore > dealerScore) {
+			player.bank += gameLogic.pot*2;
+			player.printBank();
 			$("<div id='playerWin'>You Win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
 		}
 		else {
+			player.printBank();
 			$("<div id='playerLose'>You Lost!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}
