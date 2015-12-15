@@ -1,8 +1,13 @@
 (function() {
 //Assigns functions to be called when UI buttons are clicked.
 $(document).ready(function() {
-	$('#rules').accordion({collapsible: true, active: false});
+	$('#resetBank').css('visibility', 'hidden');
 	player.printBank();
+	gameLogic.showPot();
+	$('#rules').accordion({collapsible: true, active: false});
+	$('#placeBet').click(function() {
+		gameLogic.placeBet();
+	});
 	$('#dealNewHand').click(function() {
 		gameLogic.dealHand();
 	});
@@ -11,6 +16,13 @@ $(document).ready(function() {
 	});
 	$('#stand').click(function() {
 		gameLogic.stand();
+	});
+	$('#resetBank').click(function() {
+		player.bank = 500;
+		$('#resetBank').css('visibility', 'hidden');
+		$('#betAmount').css('visibility', 'visible');
+		player.printBank();
+		gameLogic.reset();
 	});
 });
 var deck = {
@@ -36,7 +48,8 @@ var player = {
 		gameLogic.hit(player);
 	},
 	printBank: function() {
-		return $("<h1>$ " + player.bank + "</h1>").appendTo('.bank');
+		$('#playerBank').empty();
+		return $("<p><h2>Player Bank: </h2>$" + player.bank + "</p>").appendTo('#playerBank');
 	}
 };
 var dealer = {
@@ -56,16 +69,70 @@ var dealer = {
 };
 var gameLogic = {
 	handOver: false,
+	betPlaced: false,
+	pot: 0,
 	dealCounter: 0,
+	timeoutID: '',
+	placeBet: function() {
+		var betAmount = parseInt(document.getElementById("betAmount").value);
+		if (gameLogic.betPlaced === true) {
+			return null;
+		}
+		else if (player.bank === 0) {
+			gameLogic.resetBank();
+		}
+		else if (betAmount > player.bank){
+			alert("You cannot bet more money than you have in your bank!");
+		}
+		else if (Number.isInteger(betAmount)) {
+			gameLogic.reset();
+			gameLogic.pot = betAmount;
+			player.bank -= betAmount;
+			gameLogic.betPlaced = true;
+			player.printBank();
+			gameLogic.showPot();
+		}
+		else {
+			alert("Please place a valid bet. Valid bets are whole numbers only.");
+		}
+	},
+	showPot: function() {
+		$('#pot').empty();
+		return $("<p><h2>Pot: </h2>$" + gameLogic.pot + "</p>").appendTo('#pot');
+	},
+	resetPot: function() {
+		gameLogic.pot = 0;
+		gameLogic.showPot();
+	},
+	checkBank: function() {
+		if (player.bank === 0) {
+			gameLogic.resetBank();
+		}
+	},
+	resetBank: function() {
+		$('#playerBank').empty();
+		$('#betAmount').css('visibility', 'hidden');
+		$('#resetBank').css('visibility', 'visible');
+		$("<h2>You've lost all your money!</h2>").appendTo('#playerBank');
+	},
 	//Deals player and dealer two cards each for a new hand
 	dealHand: function() {
-		gameLogic.reset();
-		if (deck.dealt === false) {
+		if (deck.dealt === true) {
+			return null;
+		}
+		else if (gameLogic.betPlaced === false) {
+			return null;
+		}
+		else if (deck.dealt === false && gameLogic.betPlaced === true) {
+			gameLogic.reset();
 			deck.dealt = true;
 			gameLogic.hit(player), gameLogic.hit(player), gameLogic.hit(dealer), gameLogic.hit(dealer);
 			$("<h3>Dealer Hand: ?</h3>").appendTo('#displayDealerScore');
 			$("<i class=card-" + dealer.hand[0] + "></i> <img src='img/cardBack.png'></img>").appendTo('.dealerHand');
 			gameLogic.dealCounter++;
+		}
+		else {
+			alert("Please place a bet first.")
 		}
 	},
 	/* (Player or dealer) Generates a random card, pushes that card onto the hand array, adds the card value to the score, checks for aces and adjusts score accordingly, 
@@ -98,6 +165,7 @@ var gameLogic = {
 				obj.aceCheckResult = gameLogic.aceCheck(obj.hand, obj.score, obj.aces);
 				obj.score = obj.aceCheckResult[0];
 				obj.aces = obj.aceCheckResult[1];
+				return gameLogic.calcBust(player.score, dealer.score);
 			}
 		}
 	},
@@ -113,10 +181,13 @@ var gameLogic = {
 			while (dealer.score < 17) {
 				gameLogic.hit(dealer);
 			}
-		gameLogic.handOver = true;
-		dealer.showHand();
+			gameLogic.handOver = true;
+			dealer.showHand();
+			gameLogic.betPlaced = false;
 		}
-		return gameLogic.calcWinner(player.score, dealer.score);
+		if (dealer.score <= 21 ) {
+			return gameLogic.calcWinner(player.score, dealer.score);
+		}
 	},
 	aceCheck: function(hand, score, aces) {
 		//For each card in the hand
@@ -137,35 +208,47 @@ var gameLogic = {
 		if (playerScore > 21) {
 			gameLogic.handOver = true;
 			dealer.showHand();
+			gameLogic.betPlaced = false;
+			player.printBank();
+			gameLogic.resetPot();
 			$("<div id='playerLose'>Bust! You lose!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
+			gameLogic.checkBank();
 		}
 		else if (dealerScore > 21) {
 			gameLogic.handOver = true;
 			dealer.showHand();
-			$("<div id='playerLose'>Dealer busts! You win!</div>").appendTo('#lPlayer');
+			player.bank += gameLogic.pot*2;
+			gameLogic.betPlaced = true;
+			player.printBank();
+			gameLogic.resetPot();
+			$("<div id='playerWin'>Dealer busts! You win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
+			gameLogic.checkBank();
 		}
 	},
 	//Calculates who wins once the player decides to stand.
 	calcWinner: function(playerScore, dealerScore) {
-		if (playerScore > 21) {
-			$("<div id='playerLose'>Bust! You Lose!</div>").appendTo('#lPlayer');
-			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
-		}
-		else if (dealerScore > 21) {
-			$("<div id='playerWin'>Dealer busts! You win!</div>").appendTo('#wPlayer');
-			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
-		}
-		else if (playerScore === dealerScore) {
+		if (playerScore === dealerScore) {
+			player.bank += gameLogic.pot;
+			player.printBank();
+			gameLogic.resetPot();
+			gameLogic.checkBank();
 			$("<div id='playerTied'>You Tied!</div>").appendTo('#pTied');
 			$("<div id='dealerTied'>You Tied!</div>").appendTo('#dTied');
 		}
 		else if (playerScore > dealerScore) {
+			player.bank += gameLogic.pot*2;
+			player.printBank();
+			gameLogic.resetPot();
+			gameLogic.checkBank();
 			$("<div id='playerWin'>You Win!</div>").appendTo('#wPlayer');
 			$("<div id='dealerLost'>Dealer Lost!</div>").appendTo('#lDealer');
 		}
-		else {
+		else if (dealerScore > playerScore) {
+			player.printBank();
+			gameLogic.resetPot();
+			gameLogic.checkBank();
 			$("<div id='playerLose'>You Lost!</div>").appendTo('#lPlayer');
 			$("<div id='dealerWin'>Dealer Wins!</div>").appendTo('#wDealer');
 		}

@@ -19,6 +19,10 @@ img {
 	font-family: 'Press Start 2P', cursive;
 	text-align: center;
 }
+#bank {
+  font-size: 3em;
+  text-align: center;
+}
 #wPlayer {
 	color: #40FF00;
 }
@@ -37,7 +41,6 @@ img {
 #dTied {
 	color: #FE9A2E;
 }
-
 .card-aceClubs {
   background-position: 0      0;
 }
