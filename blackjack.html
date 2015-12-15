@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Simple blackjack game written in JavaScript.">
     <meta name="author" content="Alex Hall">
-
     <title>Blackjack!</title>
 	<link href="css/cards.css" rel="stylesheet">
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
@@ -16,10 +15,6 @@
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
 	<link href='http://fonts.googleapis.com/css?family=Average+Sans|Finger+Paint|Source+Code+Pro|Press+Start+2P' rel='stylesheet' type='text/css'>
   </head>
 
@@ -33,7 +28,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="blackjack.html">Blackjack Game - version 1.0</a>
+          <a class="navbar-brand" href="blackjack.html">Blackjack Game - version 1.1</a>
 	          <ul class="nav navbar-nav"></ul>
         </div>
       </div>
@@ -50,7 +45,8 @@
 						<ul>
 							<li>Score higher than the dealer while getting as close to 21 as you can without going over.</li>
 							<li>Cards are counted as the value of the card number, face cards all count as 10, Aces can count as 1 or 11.</li>
-							<li>Click "Deal Hand" to start, then click "Hit" to be dealt a new card and "Stand" to stay where you are. The dealer will then play his hand.</li>
+							<li>Enter a bet amount and click "Place Bet" before you deal a new hand.</li>
+							<li>Click "Deal Hand" to start, then click "Hit" to be dealt a new card and "Stand" to stay where you are. The dealer will then play their hand.</li>
 							<li><a href="http://www.blackjackinfo.com/blackjack-rules.php" target="new">Detailed Rules</a></li>
 						</ul>
 					</div>
@@ -61,7 +57,11 @@
 		
 		<div class="blackjackUI">
 			<div class="row" id="bank">
-				<div class="col-md-12" id="playerBank"></div>
+				<div class="col-md-3 col-md-offset-3" id="playerBank"></div>
+				<div class="col-md-3" id="pot"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-1 col-md-offset-5"><input type='button' value='Reset Bank' class='btn btn-danger btn-lg' id='resetBank'></div>
 			</div>
 
 			<div class="row">
@@ -73,7 +73,7 @@
 			<div class="row">
 				<div class="col-md-6 col-md-offset-3" align="center">
 					<br />
-					<button type="submit" class="btn btn-warning btn-lg" id="placeBet">Place Bet</button>
+					<input type='button' value="Place Bet" class='btn btn-warning btn-lg' id="placeBet">
 					<input type='button' value="Deal New Hand" class='btn btn-success btn-lg' id="dealNewHand">
 					<input type='button' value="Hit" class='btn btn-danger btn-lg' id="hit">
 					<input type='button' value="Stand" class='btn btn-primary btn-lg' id="stand">
